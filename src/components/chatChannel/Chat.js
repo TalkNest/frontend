@@ -181,20 +181,66 @@ const Chat = () => {
       <Messages/>
       <Input/>
 
-      <div className="videos-top-layer" style={{position: 'absolute', top: 0, left: 0, zIndex: 1}}>
+      <div className="videos-top-layer" style={{position: 'absolute',width: '100%', top: 0, left: 0, zIndex: 1}}>
         <div>
-          {stream && <video playsInline muted ref={myVideo} autoPlay style={{width: "300px"}}/>}
+          {stream && <video playsInline muted ref={myVideo} autoPlay style={{
+              position: "absolute",
+              width: "20%",
+              height:"20%",
+              bottom: "10px",
+              right: "10px",
+              zIndex: 2
+          }}/>}
           {callAccepted && !callEnded && (
-            <video playsInline ref={userVideo} autoPlay style={{width: "300px"}}/>
+            <video playsInline ref={userVideo} autoPlay style={{
+                position: 'relative',
+                width: "100%",
+                height:"100%",
+                top: 0,
+                left: 0,
+                zIndex: 1
+            }}/>
           )}
         </div>
       </div>
       <div className="call-actions-top-layer" style={{position: 'absolute', top: '350px', left: 0, zIndex: 1}}>
         <div>
           {call.isReceivingCall && !callAccepted && (
-            <button onClick={answerCall}>Answer</button>
+              <ChatButton name={'Answer'}
+                            onClick={answerCall}
+                            style={{
+                                position: 'fixed',
+                                top: '20px',
+                                left: '50%',
+                                fontSize: '20px',
+                                // transform: 'translateX(-50%)',
+                                width: '120px',
+                                height: '45px',
+                                borderRadius: '10px',
+                                lineHeight: '10px',
+                                textAlign: 'center',
+                                background: 'linear-gradient(45deg, #86C166, #24936E)',
+                                boxShadow: '0px 3px 9px #86C166'
+              }}/>
           )}
-          {callAccepted && <button onClick={leaveCall}>Hang Up</button>}
+          {callAccepted &&
+              <ChatButton name={'Hang Up'}
+                          onClick={leaveCall}
+                          style={{
+                              position: 'fixed',
+                              top: '20px',
+                              left: '50%',
+                              fontSize: '20px',
+                              transform: 'translateX(-50%)',
+                              width: '150px',
+                              height: '45px',
+                              borderRadius: '10px',
+                              lineHeight: '10px',
+                              textAlign: 'center',
+                              background: 'linear-gradient(45deg, #E87A90, #D0104C)',
+                              boxShadow: '0px 2px 5px #E87A90C'
+                          }}/>
+          }
         </div>
       </div>
 

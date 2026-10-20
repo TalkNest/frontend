@@ -7,6 +7,7 @@ import Icon from "./Icons";
 import CallPanel from "./CallPanel";
 import useCall from "./useCall";
 import "./workspace.css";
+import "./login.css";
 
 const demoUser = { uid: "demo-you", displayName: "Yuqi Guo" };
 const demoChats = [
@@ -37,10 +38,11 @@ const friendlyAuthError = e => ({
   "auth/too-many-requests": "Too many attempts. Please try again later.",
 }[e.code] || "Could not sign in. Please try again.");
 
-function SignIn({ onDemo }) {
+export function SignIn({ onDemo }) {
   const [email, setEmail] = useState(""), [password, setPassword] = useState("");
   const [name, setName] = useState(""), [signup, setSignup] = useState(false);
   const [busy, setBusy] = useState(false), [notice, setNotice] = useState("");
+  const [showHint, setShowHint] = useState(true);
   const run = async fn => { setNotice(""); setBusy(true); try { await fn(); } catch (e) { setNotice(friendlyAuthError(e)); } finally { setBusy(false); } };
   function submit(e) {
     e.preventDefault();
@@ -51,23 +53,44 @@ function SignIn({ onDemo }) {
       } else await signInWithEmailAndPassword(auth, email, password);
     });
   }
-  return <main className="tn-auth"><div className="tn-auth-story">
-    <a className="tn-brand" href="/"><span className="tn-brand-icon"><Icon name="chat" size={27}/></span>TalkNest<span className="tn-beta">BETA</span></a>
-    <div><span className="tn-eyebrow">LESS DISTANCE. MORE CONNECTION.</span><h1>Good conversations<br/>start here<span>.</span></h1><p>A calm space for messages that matter.<br/>Go from a quick hello to a face-to-face conversation.</p><button className="tn-demo-link" onClick={onDemo}>Explore the interactive preview <Icon name="arrow"/></button></div>
-    <p className="tn-auth-foot">An independent project by Yuqi Guo · React / Node.js / WebRTC</p>
-  </div><section className="tn-auth-card"><span className="tn-eyebrow">YOUR SPACE TO CONNECT</span><h2>{signup ? "Make yourself at home." : "Welcome back."}</h2><p>{signup ? "Create an account to start a conversation." : "Pick up where your conversations left off."}</p>
-    <button className="tn-google" disabled={busy} onClick={() => run(() => signInWithPopup(auth, new GoogleAuthProvider()))}>Continue with Google</button>
-    <div className="tn-divider">or use your email</div>
-    <form onSubmit={submit}>{signup && <label>Your name<input required maxLength={70} value={name} onChange={e => setName(e.target.value)} autoComplete="name"/></label>}
-      <label>Email<input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="email"/></label>
-      <label>Password<input type="password" minLength={signup ? 8 : 1} required value={password} onChange={e => setPassword(e.target.value)} autoComplete={signup ? "new-password" : "current-password"}/></label>
-      <button className="tn-primary" disabled={busy}>{busy ? "Please wait…" : signup ? "Create account" : "Sign in"}<Icon name="arrow"/></button>
-    </form>
-    {notice && <p className="tn-notice" role="status">{notice}</p>}
-    <div className="tn-auth-options"><button onClick={() => { setSignup(!signup); setNotice(""); }}>{signup ? "Already have an account? Sign in" : "New here? Create an account"}</button>
-      {!signup && <button disabled={busy || !email} onClick={() => run(async () => { await sendPasswordResetEmail(auth, email); setNotice("If an account exists, check your email for a reset link."); })}>Forgot password?</button>}</div>
-    <small>Messages are stored in Firebase. Calls use WebRTC and are not recorded by this app. Free hosting can take a moment to wake up.</small>
-  </section></main>;
+  return <main className="tn-original-auth">
+    <div className="tn-original-cover" aria-hidden="true"/>
+    <section className="tn-original-form"><div className="tn-original-items">
+      <h1 className="tn-original-title">TalkNest</h1>
+      <p className="tn-original-tagline">Access to each other</p>
+      <nav className="tn-original-tabs" aria-label="Authentication">
+        <button type="button" className={!signup ? "active" : ""} aria-pressed={!signup} disabled={busy}
+          onClick={() => { setSignup(false); setNotice(""); }}>Login</button>
+        <button type="button" className={signup ? "active" : ""} aria-pressed={signup} disabled={busy}
+          onClick={() => { setSignup(true); setNotice(""); }}>Register</button>
+      </nav>
+      {showHint && !signup && <div className="tn-original-hint" role="status">
+        <span>Please fill the following form with your information</span>
+        <button type="button" aria-label="Dismiss form hint" onClick={() => setShowHint(false)}>×</button>
+      </div>}
+      <form aria-label={signup ? "Register" : "Login"} onSubmit={submit}>
+        {signup && <input aria-label="Your name" placeholder="Username" required maxLength={70} value={name}
+          onChange={e => setName(e.target.value)} autoComplete="name"/>}
+        <input aria-label="Email" placeholder="Email" type="email" required value={email}
+          onChange={e => setEmail(e.target.value)} autoComplete="email"/>
+        <input aria-label="Password" placeholder="Password" type="password" minLength={signup ? 8 : 1}
+          required value={password} onChange={e => setPassword(e.target.value)}
+          autoComplete={signup ? "new-password" : "current-password"}/>
+        <div className="tn-original-actions">
+          <button className="tn-original-submit" disabled={busy}>{busy ? "Please wait…" : signup ? "Register" : "Login"}</button>
+          {!signup && <button type="button" className="tn-original-link" disabled={busy || !email}
+            onClick={() => run(async () => { await sendPasswordResetEmail(auth, email); setNotice("If an account exists, check your email for a reset link."); })}>Forgot password?</button>}
+        </div>
+      </form>
+      {notice && <p className="tn-original-notice" role="status">{notice}</p>}
+      <button className="tn-original-google" disabled={busy}
+        onClick={() => run(() => signInWithPopup(auth, new GoogleAuthProvider()))}>
+        <span aria-hidden="true">G</span> Sign in with Google
+      </button>
+      <button className="tn-original-preview" onClick={onDemo}>Explore the interactive preview</button>
+      <small>Messages are stored in Firebase. Calls use WebRTC and are not recorded by this app.</small>
+    </div></section>
+  </main>;
 }
 
 function Profile({ user, current, onSaved }) {

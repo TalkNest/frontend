@@ -42,7 +42,6 @@ export function SignIn({ onDemo }) {
   const [email, setEmail] = useState(""), [password, setPassword] = useState("");
   const [name, setName] = useState(""), [signup, setSignup] = useState(false);
   const [busy, setBusy] = useState(false), [notice, setNotice] = useState("");
-  const [showHint, setShowHint] = useState(true);
   const run = async fn => { setNotice(""); setBusy(true); try { await fn(); } catch (e) { setNotice(friendlyAuthError(e)); } finally { setBusy(false); } };
   function submit(e) {
     e.preventDefault();
@@ -64,30 +63,41 @@ export function SignIn({ onDemo }) {
         <button type="button" className={signup ? "active" : ""} aria-pressed={signup} disabled={busy}
           onClick={() => { setSignup(true); setNotice(""); }}>Register</button>
       </nav>
-      {showHint && !signup && <div className="tn-original-hint" role="status">
-        <span>Please fill the following form with your information</span>
-        <button type="button" aria-label="Dismiss form hint" onClick={() => setShowHint(false)}>×</button>
-      </div>}
+      <p className="tn-original-intro">{signup ? "A new conversation starts with you." : "Sign in to pick up the conversation."}</p>
       <form aria-label={signup ? "Register" : "Login"} onSubmit={submit}>
-        {signup && <input aria-label="Your name" placeholder="Username" required maxLength={70} value={name}
-          onChange={e => setName(e.target.value)} autoComplete="name"/>}
-        <input aria-label="Email" placeholder="Email" type="email" required value={email}
-          onChange={e => setEmail(e.target.value)} autoComplete="email"/>
-        <input aria-label="Password" placeholder="Password" type="password" minLength={signup ? 8 : 1}
-          required value={password} onChange={e => setPassword(e.target.value)}
-          autoComplete={signup ? "new-password" : "current-password"}/>
-        <div className="tn-original-actions">
-          <button className="tn-original-submit" disabled={busy}>{busy ? "Please wait…" : signup ? "Register" : "Login"}</button>
+        {signup && <label className="tn-original-field">Your name
+          <input placeholder="Your name" required maxLength={70} value={name}
+            onChange={e => setName(e.target.value)} autoComplete="name"/>
+        </label>}
+        <label className="tn-original-field">Email
+          <input placeholder="you@example.com" type="email" required value={email}
+            onChange={e => setEmail(e.target.value)} autoComplete="email"/>
+        </label>
+        <div className="tn-original-password-label">
+          <label htmlFor="tn-login-password">Password</label>
           {!signup && <button type="button" className="tn-original-link" disabled={busy || !email}
             onClick={() => run(async () => { await sendPasswordResetEmail(auth, email); setNotice("If an account exists, check your email for a reset link."); })}>Forgot password?</button>}
         </div>
+        <input id="tn-login-password" placeholder={signup ? "At least 8 characters" : "Enter your password"} type="password" minLength={signup ? 8 : 1}
+          required value={password} onChange={e => setPassword(e.target.value)}
+          autoComplete={signup ? "new-password" : "current-password"}/>
+        <div className="tn-original-actions">
+          <button className="tn-original-submit" disabled={busy}>{busy ? "Please wait…" : signup ? "Register" : "Login"}<Icon name="arrow" size={17}/></button>
+        </div>
       </form>
       {notice && <p className="tn-original-notice" role="status">{notice}</p>}
+      <div className="tn-original-divider"><span>or continue with</span></div>
       <button className="tn-original-google" disabled={busy}
         onClick={() => run(() => signInWithPopup(auth, new GoogleAuthProvider()))}>
-        <span aria-hidden="true">G</span> Sign in with Google
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.39-.18-2.05H12v3.88h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.25c1.9-1.75 2.97-4.33 2.97-7.36Z"/>
+          <path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.25-2.51c-.9.6-2.04.96-3.37.96-2.6 0-4.8-1.75-5.59-4.1H3.06v2.6A10 10 0 0 0 12 22Z"/>
+          <path fill="#FBBC05" d="M6.41 13.93a6 6 0 0 1 0-3.86v-2.6H3.06a10 10 0 0 0 0 9.06l3.35-2.6Z"/>
+          <path fill="#EA4335" d="M12 5.97c1.47 0 2.79.51 3.82 1.51l2.87-2.87A9.6 9.6 0 0 0 12 2a10 10 0 0 0-8.94 5.47l3.35 2.6A6 6 0 0 1 12 5.97Z"/>
+        </svg>
+        Sign in with Google
       </button>
-      <button className="tn-original-preview" onClick={onDemo}>Explore the interactive preview</button>
+      <button className="tn-original-preview" onClick={onDemo}>Explore the interactive preview<Icon name="arrow" size={14}/></button>
       <small>Messages are stored in Firebase. Calls use WebRTC and are not recorded by this app.</small>
     </div></section>
   </main>;
